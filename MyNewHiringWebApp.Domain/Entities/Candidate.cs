@@ -27,7 +27,7 @@ namespace MyNewHiringWebApp.Domain.Entities
         private readonly List<TestSubmission> _submissions = new();
         public IReadOnlyCollection<TestSubmission> Submissions => _submissions.AsReadOnly();
 
-        private Candidate() { /* for EF */ }
+        private Candidate() {}
 
         public Candidate(string firstName, string lastName, string email, string? phone = null)
         {

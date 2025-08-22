@@ -20,7 +20,7 @@ namespace MyNewHiringWebApp.Domain.Entities
         public DateTime AppliedAt { get; private set; }
         public JobApplicationStatus Status { get; private set; }
 
-        // concurrency token example (optional)
+        
         public byte[]? RowVersion { get; private set; }
 
         private JobApplication() { }
