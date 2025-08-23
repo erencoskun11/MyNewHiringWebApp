@@ -1,15 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MyNewHiringWebApp.Application.Interface;
+using MyNewHiringWebApp.Application.Interfaces; // <-- dikkat
 using MyNewHiringWebApp.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MyNewHiringWebApp.Infrastructure.Repositories
 {
-    public class BaseRepository<T> where T : class
+    public class BaseRepository<T> : IRepository<T> where T : class
     {
         protected readonly ApplicationDbContext _db;
         protected readonly DbSet<T> _dbSet;
@@ -25,15 +27,9 @@ namespace MyNewHiringWebApp.Infrastructure.Repositories
             await _dbSet.AddAsync(entity, ct);
         }
 
-        public virtual void Update(T entity)
-        {
-            _dbSet.Update(entity);
-        }
+        public virtual void Update(T entity) => _dbSet.Update(entity);
 
-        public virtual void Remove(T entity)
-        {
-            _dbSet.Remove(entity);
-        }
+        public virtual void Remove(T entity) => _dbSet.Remove(entity);
 
         public virtual async Task<T?> GetByIdAsync(int id, CancellationToken ct = default)
         {
@@ -46,14 +42,10 @@ namespace MyNewHiringWebApp.Infrastructure.Repositories
         }
 
         public virtual async Task<IReadOnlyList<T>> ListAsync(CancellationToken ct = default)
-        {
-            return await _dbSet.ToListAsync(ct);
-        }
+            => await _dbSet.ToListAsync(ct);
 
         public virtual async Task<IReadOnlyList<T>> ListAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = default)
-        {
-            return await _dbSet.Where(predicate).ToListAsync(ct);
-        }
+            => await _dbSet.Where(predicate).ToListAsync(ct);
 
         public virtual async Task<(IReadOnlyList<T> Items, int TotalCount)> GetPagedAsync(
             int page, int pageSize, Expression<Func<T, bool>>? predicate = null, CancellationToken ct = default)
@@ -70,5 +62,4 @@ namespace MyNewHiringWebApp.Infrastructure.Repositories
         }
     }
 }
-
 

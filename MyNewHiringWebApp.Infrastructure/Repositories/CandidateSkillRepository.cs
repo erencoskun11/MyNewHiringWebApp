@@ -1,10 +1,5 @@
-﻿using MyNewHiringWebApp.Infrastructure.Data;
-using MyNewHiringWebApp.Infrastructure.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MyNewHiringWebApp.Application.Interface;
+using MyNewHiringWebApp.Infrastructure.Data;
 
 namespace MyNewHiringWebApp.Infrastructure.Repositories
 {

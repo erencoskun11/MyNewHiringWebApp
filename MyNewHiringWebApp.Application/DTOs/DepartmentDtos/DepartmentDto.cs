@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MyNewHiringWebApp.Application.DTOs.JobPositionDtos;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
