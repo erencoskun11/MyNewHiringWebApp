@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace MyNewHiringWebApp.Infrastructure.Interfaces
 {
-    internal class ICandidateSkillRepository
+    public interface ICandidateSkillRepository : IRepository<CandidateSkill>
     {
+        
     }
 }
