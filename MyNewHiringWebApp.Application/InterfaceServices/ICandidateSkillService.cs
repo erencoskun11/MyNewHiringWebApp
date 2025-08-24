@@ -5,7 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MyNewHiringWebApp.Domain.Entities;
-namespace MyNewHiringWebApp.Application.InterfaceServices
+using MyNewHiringWebApp.Application.InterfaceServices;
+namespace MyNewHiringWebApp.Application.Interface
 
 {
     public interface ICandidateSkillService
