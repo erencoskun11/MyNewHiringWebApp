@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MyNewHiringWebApp.Application.Interface;
 using MyNewHiringWebApp.Infrastructure.Data;
 using System;
@@ -17,74 +17,50 @@ namespace MyNewHiringWebApp.Infrastructure.Repositories
 
         public BaseRepository(ApplicationDbContext db)
         {
-            _db = db;
+            _db = db ?? throw new ArgumentNullException(nameof(db));
             _dbSet = _db.Set<TEntity>();
         }
 
         // Add / Update / Remove
-        public async Task AddAsync(TEntity entity, CancellationToken ct = default) => await _dbSet.AddAsync(entity, ct);
-        public void Update(TEntity entity) => _dbSet.Update(entity);
-        public void Remove(TEntity entity) => _dbSet.Remove(entity);
+        public virtual async Task AddAsync(TEntity entity, CancellationToken ct = default)
+            => await _dbSet.AddAsync(entity, ct);
+
+        public virtual void Update(TEntity entity) => _dbSet.Update(entity);
+
+        public virtual void Remove(TEntity entity) => _dbSet.Remove(entity);
 
         // Get by id
-        public async Task<TEntity?> GetByIdAsync(int id, CancellationToken ct = default) => await _dbSet.FindAsync(new object[] { id }, ct);
+        public virtual async Task<TEntity?> GetByIdAsync(int id, CancellationToken ct = default)
+            => await _dbSet.FindAsync(new object[] { id }, ct);
 
-        // --- LIST / FIND helpers ---
-        // Basit liste (tüm kayıtlar)
-        public async Task<IEnumerable<TEntity>> ListAsync(CancellationToken ct = default) => await _dbSet.ToListAsync(ct);
-
-        // Liste + includes (navigation properties yüklemek için)
-        public async Task<IEnumerable<TEntity>> ListAsync(CancellationToken ct = default, params Expression<Func<TEntity, object>>[] includes)
-        {
-            IQueryable<TEntity> query = _dbSet.AsQueryable();
-            if (includes != null && includes.Length > 0)
-            {
-                foreach (var include in includes)
-                    query = query.Include(include);
-            }
-            return await query.ToListAsync(ct);
-        }
-
-        // Predicate ile liste
-        public async Task<IEnumerable<TEntity>> ListAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken ct = default)
-            => await _dbSet.Where(predicate).ToListAsync(ct);
-
-        // Predicate + includes
-        public async Task<IEnumerable<TEntity>> ListAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken ct = default, params Expression<Func<TEntity, object>>[] includes)
-        {
-            IQueryable<TEntity> query = _dbSet.Where(predicate);
-            if (includes != null && includes.Length > 0)
-            {
-                foreach (var include in includes)
-                    query = query.Include(include);
-            }
-            return await query.ToListAsync(ct);
-        }
-
-        // Find (first or default)
-        public async Task<TEntity?> FindAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken ct = default)
+        // Find
+        public virtual async Task<TEntity?> FindAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken ct = default)
             => await _dbSet.FirstOrDefaultAsync(predicate, ct);
 
-        // Find + includes
-        public async Task<TEntity?> FindAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken ct = default, params Expression<Func<TEntity, object>>[] includes)
+        // List
+        public virtual async Task<IReadOnlyList<TEntity>> ListAsync(CancellationToken ct = default)
+            => await _dbSet.ToListAsync(ct);
+
+        public virtual async Task<IReadOnlyList<TEntity>> ListAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken ct = default)
+            => await _dbSet.Where(predicate).ToListAsync(ct);
+
+        // Paged list
+        public virtual async Task<(IReadOnlyList<TEntity> Items, int TotalCount)> GetPagedAsync(
+            int page, int pageSize, Expression<Func<TEntity, bool>>? predicate = null, CancellationToken ct = default)
         {
-            IQueryable<TEntity> query = _dbSet.Where(predicate);
-            if (includes != null && includes.Length > 0)
-            {
-                foreach (var include in includes)
-                    query = query.Include(include);
-            }
-            return await query.FirstOrDefaultAsync(ct);
+            if (page <= 0) page = 1;
+            if (pageSize <= 0) pageSize = 10;
+
+            var query = predicate == null ? _dbSet.AsQueryable() : _dbSet.Where(predicate);
+
+            var totalCount = await query.CountAsync(ct);
+            var items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(ct);
+
+            return (items, totalCount);
         }
 
-        // Paged (basit) — includes eklenmedi; eğer istersen overload ekleyebiliriz
-        public async Task<(IEnumerable<TEntity> Items, int TotalCount)> GetPagedAsync(int page, int pageSize, CancellationToken ct = default)
-        {
-            var total = await _dbSet.CountAsync(ct);
-            var items = await _dbSet.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(ct);
-            return (items, total);
-        }
-
-        public async Task<int> SaveChangesAsync(CancellationToken ct = default) => await _db.SaveChangesAsync(ct);
+        // Save changes
+        public virtual async Task<int> SaveChangesAsync(CancellationToken ct = default)
+            => await _db.SaveChangesAsync(ct);
     }
 }

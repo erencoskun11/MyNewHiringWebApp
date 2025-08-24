@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading;
@@ -11,18 +11,17 @@ namespace MyNewHiringWebApp.Application.Interface
         Task AddAsync(TEntity entity, CancellationToken ct = default);
         void Update(TEntity entity);
         void Remove(TEntity entity);
+
         Task<TEntity?> GetByIdAsync(int id, CancellationToken ct = default);
-
-        Task<IEnumerable<TEntity>> ListAsync(CancellationToken ct = default);
-
-        // predicate overload
-        Task<IEnumerable<TEntity>> ListAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken ct = default);
-
-        // find single by predicate
         Task<TEntity?> FindAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken ct = default);
 
-        Task<(IEnumerable<TEntity> Items, int TotalCount)> GetPagedAsync(int page, int pageSize, CancellationToken ct = default);
+        Task<IReadOnlyList<TEntity>> ListAsync(CancellationToken ct = default);
+        Task<IReadOnlyList<TEntity>> ListAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken ct = default);
 
-        Task<int> SaveChangesAsync(CancellationToken ct = default);
+        // Pagination with optional predicate
+        Task<(IReadOnlyList<TEntity> Items, int TotalCount)> GetPagedAsync(
+            int page, int pageSize, Expression<Func<TEntity, bool>>? predicate = null, CancellationToken ct = default);
+
+        Task SaveChangesAsync(CancellationToken ct = default);
     }
 }

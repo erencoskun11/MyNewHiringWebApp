@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MyNewHiringWebApp.Infrastructure.Interfaces
+namespace MyNewHiringWebApp.Application.Interface
 {
     public interface IUnitOfWork
     {
