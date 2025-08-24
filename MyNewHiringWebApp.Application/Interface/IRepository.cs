@@ -21,5 +21,6 @@ namespace MyNewHiringWebApp.Application.Interface
         // Pagination
         Task<(IReadOnlyList<T> Items, int TotalCount)> GetPagedAsync(
             int page, int pageSize, Expression<Func<T, bool>>? predicate = null, CancellationToken ct = default);
+        Task SaveChangesAsync(CancellationToken ct);
     }
 }
