@@ -5,14 +5,22 @@ using MyNewHiringWebApp.Application.Mappings;
 using MyNewHiringWebApp.Application.Services;
 using MyNewHiringWebApp.Domain.Entities;
 using MyNewHiringWebApp.Infrastructure.Data;
+using MyNewHiringWebApp.Application.Interface;
 using MyNewHiringWebApp.Infrastructure.Repositories;
+using AutoMapper;
 
-using MyAppRepo = MyNewHiringWebApp.Application.Interface;
-using MyAppServices = MyNewHiringWebApp.Application.Services;
 var builder = WebApplication.CreateBuilder(args);
 
+// Logging
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(opts =>
+    {
+        opts.JsonSerializerOptions.PropertyNamingPolicy = null;
+    });
 
 // DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -21,99 +29,105 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
         sql => sql.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null));
 });
 
-
-// AutoMapper DI
+// AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
+// Generic repository DI
+builder.Services.AddScoped(typeof(IRepository<>), typeof(BaseRepository<>));
 
-
-
-
-// Generic Repository DI
-builder.Services.AddScoped(typeof(MyAppRepo.IRepository<>), typeof(BaseRepository<>));
-
-// Candidate
+// Concrete services & their repositories
 builder.Services.AddScoped<ICandidateService, CandidateService>();
-builder.Services.AddScoped<MyAppRepo.IRepository<Candidate>, BaseRepository<Candidate>>();
+builder.Services.AddScoped<IRepository<Candidate>, BaseRepository<Candidate>>();
 
-// CandidateSkill
-builder.Services.AddScoped<ICandidateSkillService, MyAppServices.CandidateSkillService>();
-builder.Services.AddScoped<MyAppRepo.IRepository<CandidateSkill>, BaseRepository<CandidateSkill>>();
+builder.Services.AddScoped<ICandidateSkillService, CandidateSkillService>();
+builder.Services.AddScoped<IRepository<CandidateSkill>, BaseRepository<CandidateSkill>>();
 
-// Department
-builder.Services.AddScoped<IDepartmentService, MyAppServices.DepartmentService>();
-builder.Services.AddScoped<MyAppRepo.IRepository<Department>, BaseRepository<Department>>();
+builder.Services.AddScoped<IDepartmentService, DepartmentService>();
+builder.Services.AddScoped<IRepository<Department>, BaseRepository<Department>>();
 
-// Interview
-builder.Services.AddScoped<IInterviewService, MyAppServices.InterviewService>();
-builder.Services.AddScoped<MyAppRepo.IRepository<Interview>, BaseRepository<Interview>>();
+builder.Services.AddScoped<IInterviewService, InterviewService>();
+builder.Services.AddScoped<IRepository<Interview>, BaseRepository<Interview>>();
 
-// Interviewer
-builder.Services.AddScoped<IInterviewerService, MyAppServices.InterviewerService>();
-builder.Services.AddScoped<MyAppRepo.IRepository<Interviewer>, BaseRepository<Interviewer>>();
+builder.Services.AddScoped<IInterviewerService, InterviewerService>();
+builder.Services.AddScoped<IRepository<Interviewer>, BaseRepository<Interviewer>>();
 
-// JobApplication
-builder.Services.AddScoped<IJobApplicationService, MyAppServices.JobApplicationService>();
-builder.Services.AddScoped<MyAppRepo.IRepository<JobApplication>, BaseRepository<JobApplication>>();
+builder.Services.AddScoped<IJobApplicationService, JobApplicationService>();
+builder.Services.AddScoped<IRepository<JobApplication>, BaseRepository<JobApplication>>();
 
-// JobPosition
-builder.Services.AddScoped<IJobPositionService, MyAppServices.JobPositionService>();
-builder.Services.AddScoped<MyAppRepo.IRepository<JobPosition>, BaseRepository<JobPosition>>();
+builder.Services.AddScoped<IJobPositionService, JobPositionService>();
+builder.Services.AddScoped<IRepository<JobPosition>, BaseRepository<JobPosition>>();
 
-// Skill
-builder.Services.AddScoped<ISkillService, MyAppServices.SkillService>();
-builder.Services.AddScoped<MyAppRepo.IRepository<Skill>, BaseRepository<Skill>>();
+builder.Services.AddScoped<ISkillService, SkillService>();
+builder.Services.AddScoped<IRepository<Skill>, BaseRepository<Skill>>();
 
-// SubmittedAnswer
-builder.Services.AddScoped<ISubmittedAnswerService, MyAppServices.SubmittedAnswerService>();
-builder.Services.AddScoped<MyAppRepo.IRepository<SubmittedAnswer>, BaseRepository<SubmittedAnswer>>();
+builder.Services.AddScoped<ISubmittedAnswerService, SubmittedAnswerService>();
+builder.Services.AddScoped<IRepository<SubmittedAnswer>, BaseRepository<SubmittedAnswer>>();
 
-// Test
-builder.Services.AddScoped<ITestService, MyAppServices.TestService>();
-builder.Services.AddScoped<MyAppRepo.IRepository<Test>, BaseRepository<Test>>();
+builder.Services.AddScoped<ITestService, TestService>();
+builder.Services.AddScoped<IRepository<Test>, BaseRepository<Test>>();
 
-// TestQuestion
-builder.Services.AddScoped<ITestQuestionService, MyAppServices.TestQuestionService>();
-builder.Services.AddScoped<MyAppRepo.IRepository<TestQuestion>, BaseRepository<TestQuestion>>();
+builder.Services.AddScoped<ITestQuestionService, TestQuestionService>();
+builder.Services.AddScoped<IRepository<TestQuestion>, BaseRepository<TestQuestion>>();
 
-// TestSubmission
-builder.Services.AddScoped<ITestSubmissionService, MyAppServices.TestSubmissionService>();
-builder.Services.AddScoped<MyAppRepo.IRepository<TestSubmission>, BaseRepository<TestSubmission>>();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+builder.Services.AddScoped<ITestSubmissionService, TestSubmissionService>();
+builder.Services.AddScoped<IRepository<TestSubmission>, BaseRepository<TestSubmission>>();
 
 // Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "MyNewHiringWebApp API", Version = "v1" });
+
+    // DTO isim çakışmalarını önlemek için schemaId'yi namespace ile birlikte kullan
+    c.CustomSchemaIds(type =>
+    {
+        if (type.Namespace != null && type.Namespace.Contains("DTOs"))
+            return type.FullName!.Replace(".", "_");
+        return type.Name;
+    });
+});
+
+// CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", builder =>
+    {
+        builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader();
+    });
 });
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// Developer exception page
+app.UseDeveloperExceptionPage();
+
+// Swagger
+app.UseSwagger();
+app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "v1"));
+
+// CORS
+app.UseCors("AllowAll");
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
-
 app.MapControllers();
 
+// DB migrate + seed (opsiyonel)
+using (var scope = app.Services.CreateScope())
+{
+    try
+    {
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        // db.Database.Migrate(); // ihtiyaç varsa aç
+        // DbSeeder.Seed(db);     // seed varsa aç
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("DB migrate/seed hatası: " + ex);
+    }
+}
+
 app.Run();
+

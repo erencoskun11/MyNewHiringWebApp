@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MyNewHiringWebApp.Application.Interface;
 using MyNewHiringWebApp.Infrastructure.Data;
 using System;
@@ -10,44 +10,43 @@ using System.Threading.Tasks;
 
 namespace MyNewHiringWebApp.Infrastructure.Repositories
 {
-    public class BaseRepository<T> : IRepository<T> where T : class
+    public class BaseRepository<TEntity> : IRepository<TEntity> where TEntity : class
     {
         protected readonly ApplicationDbContext _db;
-        protected readonly DbSet<T> _dbSet;
+        protected readonly DbSet<TEntity> _dbSet;
 
         public BaseRepository(ApplicationDbContext db)
         {
             _db = db ?? throw new ArgumentNullException(nameof(db));
-            _dbSet = _db.Set<T>();
+            _dbSet = _db.Set<TEntity>();
         }
 
-        public virtual async Task AddAsync(T entity, CancellationToken ct = default)
-        {
-            await _dbSet.AddAsync(entity, ct);
-        }
+        // Add / Update / Remove
+        public virtual async Task AddAsync(TEntity entity, CancellationToken ct = default)
+            => await _dbSet.AddAsync(entity, ct);
 
-        public virtual void Update(T entity) => _dbSet.Update(entity);
+        public virtual void Update(TEntity entity) => _dbSet.Update(entity);
 
-        public virtual void Remove(T entity) => _dbSet.Remove(entity);
+        public virtual void Remove(TEntity entity) => _dbSet.Remove(entity);
 
-        public virtual async Task<T?> GetByIdAsync(int id, CancellationToken ct = default)
-        {
-            return await _dbSet.FindAsync(new object[] { id }, ct);
-        }
+        // Get by id
+        public virtual async Task<TEntity?> GetByIdAsync(int id, CancellationToken ct = default)
+            => await _dbSet.FindAsync(new object[] { id }, ct);
 
-        public virtual async Task<T?> FindAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = default)
-        {
-            return await _dbSet.FirstOrDefaultAsync(predicate, ct);
-        }
+        // Find
+        public virtual async Task<TEntity?> FindAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken ct = default)
+            => await _dbSet.FirstOrDefaultAsync(predicate, ct);
 
-        public virtual async Task<IReadOnlyList<T>> ListAsync(CancellationToken ct = default)
+        // List
+        public virtual async Task<IReadOnlyList<TEntity>> ListAsync(CancellationToken ct = default)
             => await _dbSet.ToListAsync(ct);
 
-        public virtual async Task<IReadOnlyList<T>> ListAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = default)
+        public virtual async Task<IReadOnlyList<TEntity>> ListAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken ct = default)
             => await _dbSet.Where(predicate).ToListAsync(ct);
 
-        public virtual async Task<(IReadOnlyList<T> Items, int TotalCount)> GetPagedAsync(
-            int page, int pageSize, Expression<Func<T, bool>>? predicate = null, CancellationToken ct = default)
+        // Paged list
+        public virtual async Task<(IReadOnlyList<TEntity> Items, int TotalCount)> GetPagedAsync(
+            int page, int pageSize, Expression<Func<TEntity, bool>>? predicate = null, CancellationToken ct = default)
         {
             if (page <= 0) page = 1;
             if (pageSize <= 0) pageSize = 10;
@@ -60,11 +59,8 @@ namespace MyNewHiringWebApp.Infrastructure.Repositories
             return (items, totalCount);
         }
 
-        public async Task SaveChangesAsync(CancellationToken ct = default)
-        {
-            await _db.SaveChangesAsync(ct);
-        }
-
+        // Save changes
+        public virtual async Task<int> SaveChangesAsync(CancellationToken ct = default)
+            => await _db.SaveChangesAsync(ct);
     }
 }
-
