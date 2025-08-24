@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MyNewHiringWebApp.Application.Interface;
-using MyNewHiringWebApp.Application.Interfaces; // <-- dikkat
 using MyNewHiringWebApp.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
@@ -60,6 +59,12 @@ namespace MyNewHiringWebApp.Infrastructure.Repositories
 
             return (items, totalCount);
         }
+
+        public async Task SaveChangesAsync(CancellationToken ct = default)
+        {
+            await _db.SaveChangesAsync(ct);
+        }
+
     }
 }
 
