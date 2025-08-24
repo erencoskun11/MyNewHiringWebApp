@@ -21,6 +21,11 @@ builder.Services.AddControllers()
         opts.JsonSerializerOptions.PropertyNamingPolicy = null;
     });
 
+// AutoMapper
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+
+
 // DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {

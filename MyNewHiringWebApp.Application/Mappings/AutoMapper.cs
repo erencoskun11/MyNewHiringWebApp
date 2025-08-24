@@ -43,20 +43,6 @@ namespace MyNewHiringWebApp.Application.Mappings
             CreateMap<InterviewerUpdateDto, Interviewer>().ReverseMap();
             CreateMap<InterviewerDto, Interviewer>().ReverseMap();
 
-      
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
             // Interview ↔ DTO
             CreateMap<Interview, InterviewDto>()
                 .ForMember(d => d.JobApplicationTitle,
