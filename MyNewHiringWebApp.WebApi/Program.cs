@@ -26,6 +26,11 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 
 
+// AutoMapper
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+
+
 // DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {

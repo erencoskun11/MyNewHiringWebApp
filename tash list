@@ -1,0 +1,231 @@
+[33mcommit 79a577027bcbb77a401a999e649f8daa40456e82[m
+Merge: 7472dea 8718ab0
+Author: erencoskun11 <143544935+erencoskun11@users.noreply.github.com>
+Date:   Thu Aug 21 19:20:14 2025 +0300
+
+    WIP on main: 7472dea Merge pull request #1 from erencoskun11/feature/entities-setup
+
+[1mdiff --cc MyNewHiringApp.sln[m
+[1mindex 4ebcb64,4ebcb64..2b94ff6[m
+[1m--- a/MyNewHiringApp.sln[m
+[1m+++ b/MyNewHiringApp.sln[m
+[36m@@@ -1,16 -1,16 +1,16 @@@[m
+  ﻿[m
+  Microsoft Visual Studio Solution File, Format Version 12.00[m
+  # Visual Studio Version 17[m
+[31m--VisualStudioVersion = 17.13.35931.197 d17.13[m
+[32m++VisualStudioVersion = 17.13.35931.197[m
+  MinimumVisualStudioVersion = 10.0.40219.1[m
+  Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyNewHiringWebApp.Domain", "MyNewHiringWebApp.Domain\MyNewHiringWebApp.Domain.csproj", "{2ED29418-3570-4976-B22D-EE4808849BED}"[m
+  EndProject[m
+  Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyNewHiringWebApp.Application", "MyNewHiringWebApp.Application\MyNewHiringWebApp.Application.csproj", "{7A6D8293-8394-4552-A9DD-37E851226DC7}"[m
+  EndProject[m
+[31m--Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyNewHiringWebApp.Infrastrusture", "MyNewHiringWebApp.Infrastrusture\MyNewHiringWebApp.Infrastrusture.csproj", "{81FC53D8-F323-4B04-B7E0-D6B8CB5D8006}"[m
+[31m--EndProject[m
+  Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyNewHiringWebApp.WebApi", "MyNewHiringWebApp.WebApi\MyNewHiringWebApp.WebApi.csproj", "{E4158C50-D696-4286-A1A0-684259A18512}"[m
+  EndProject[m
+[32m++Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyNewHiringWebApp.Infrastructure", "MyNewHiringWebApp.Infrastructure\MyNewHiringWebApp.Infrastructure.csproj", "{FE353403-12CA-4E83-84C3-E5A4E17CD4A3}"[m
+[32m++EndProject[m
+  Global[m
+  	GlobalSection(SolutionConfigurationPlatforms) = preSolution[m
+  		Debug|Any CPU = Debug|Any CPU[m
+[36m@@@ -25,14 -25,14 +25,14 @@@[m
+  		{7A6D8293-8394-4552-A9DD-37E851226DC7}.Debug|Any CPU.Build.0 = Debug|Any CPU[m
+  		{7A6D8293-8394-4552-A9DD-37E851226DC7}.Release|Any CPU.ActiveCfg = Release|Any CPU[m
+  		{7A6D8293-8394-4552-A9DD-37E851226DC7}.Release|Any CPU.Build.0 = Release|Any CPU[m
+[31m--		{81FC53D8-F323-4B04-B7E0-D6B8CB5D8006}.Debug|Any CPU.ActiveCfg = Debug|Any CPU[m
+[31m--		{81FC53D8-F323-4B04-B7E0-D6B8CB5D8006}.Debug|Any CPU.Build.0 = Debug|Any CPU[m
+[31m--		{81FC53D8-F323-4B04-B7E0-D6B8CB5D8006}.Release|Any CPU.ActiveCfg = Release|Any CPU[m
+[31m--		{81FC53D8-F323-4B04-B7E0-D6B8CB5D8006}.Release|Any CPU.Build.0 = Release|Any CPU[m
+  		{E4158C50-D696-4286-A1A0-684259A18512}.Debug|Any CPU.ActiveCfg = Debug|Any CPU[m
+  		{E4158C50-D696-4286-A1A0-684259A18512}.Debug|Any CPU.Build.0 = Debug|Any CPU[m
+  		{E4158C50-D696-4286-A1A0-684259A18512}.Release|Any CPU.ActiveCfg = Release|Any CPU[m
+  		{E4158C50-D696-4286-A1A0-684259A18512}.Release|Any CPU.Build.0 = Release|Any CPU[m
+[32m++		{FE353403-12CA-4E83-84C3-E5A4E17CD4A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU[m
+[32m++		{FE353403-12CA-4E83-84C3-E5A4E17CD4A3}.Debug|Any CPU.Build.0 = Debug|Any CPU[m
+[32m++		{FE353403-12CA-4E83-84C3-E5A4E17CD4A3}.Release|Any CPU.ActiveCfg = Release|Any CPU[m
+[32m++		{FE353403-12CA-4E83-84C3-E5A4E17CD4A3}.Release|Any CPU.Build.0 = Release|Any CPU[m
+  	EndGlobalSection[m
+  	GlobalSection(SolutionProperties) = preSolution[m
+  		HideSolutionNode = FALSE[m
+[1mdiff --cc MyNewHiringWebApp.Application/MyNewHiringWebApp.Application.csproj[m
+[1mindex fa71b7a,fa71b7a..289686c[m
+[1m--- a/MyNewHiringWebApp.Application/MyNewHiringWebApp.Application.csproj[m
+[1m+++ b/MyNewHiringWebApp.Application/MyNewHiringWebApp.Application.csproj[m
+[36m@@@ -6,4 -6,4 +6,13 @@@[m
+      <Nullable>enable</Nullable>[m
+    </PropertyGroup>[m
+  [m
+[32m++  <ItemGroup>[m
+[32m++    <PackageReference Include="AutoMapper" Version="12.0.1" />[m
+[32m++    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />[m
+[32m++  </ItemGroup>[m
+[32m++[m
+[32m++  <ItemGroup>[m
+[32m++    <ProjectReference Include="..\MyNewHiringWebApp.Domain\MyNewHiringWebApp.Domain.csproj" />[m
+[32m++  </ItemGroup>[m
+[32m++[m
+  </Project>[m
+[1mdiff --cc MyNewHiringWebApp.Infrastrusture/MyNewHiringWebApp.Infrastrusture.csproj[m
+[1mindex fa71b7a,fa71b7a..0000000[m
+[1mdeleted file mode 100644,100644[m
+[1m--- a/MyNewHiringWebApp.Infrastrusture/MyNewHiringWebApp.Infrastrusture.csproj[m
+[1m+++ /dev/null[m
+[36m@@@ -1,9 -1,9 +1,0 @@@[m
+[31m--﻿<Project Sdk="Microsoft.NET.Sdk">[m
+[31m--[m
+[31m--  <PropertyGroup>[m
+[31m--    <TargetFramework>net8.0</TargetFramework>[m
+[31m--    <ImplicitUsings>enable</ImplicitUsings>[m
+[31m--    <Nullable>enable</Nullable>[m
+[31m--  </PropertyGroup>[m
+[31m--[m
+[31m--</Project>[m
+[1mdiff --cc MyNewHiringWebApp.WebApi/Controllers/WeatherForecastController.cs[m
+[1mindex e44a251,e44a251..0000000[m
+[1mdeleted file mode 100644,100644[m
+[1m--- a/MyNewHiringWebApp.WebApi/Controllers/WeatherForecastController.cs[m
+[1m+++ /dev/null[m
+[36m@@@ -1,33 -1,33 +1,0 @@@[m
+[31m--using Microsoft.AspNetCore.Mvc;[m
+[31m--[m
+[31m--namespace MyNewHiringWebApp.WebApi.Controllers[m
+[31m--{[m
+[31m--    [ApiController][m
+[31m--    [Route("[controller]")][m
+[31m--    public class WeatherForecastController : ControllerBase[m
+[31m--    {[m
+[31m--        private static readonly string[] Summaries = new[][m
+[31m--        {[m
+[31m--            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"[m
+[31m--        };[m
+[31m--[m
+[31m--        private readonly ILogger<WeatherForecastController> _logger;[m
+[31m--[m
+[31m--        public WeatherForecastController(ILogger<WeatherForecastController> logger)[m
+[31m--        {[m
+[31m--            _logger = logger;[m
+[31m--        }[m
+[31m--[m
+[31m--        [HttpGet(Name = "GetWeatherForecast")][m
+[31m--        public IEnumerable<WeatherForecast> Get()[m
+[31m--        {[m
+[31m--            return Enumerable.Range(1, 5).Select(index => new WeatherForecast[m
+[31m--            {[m
+[31m--                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),[m
+[31m--                TemperatureC = Random.Shared.Next(-20, 55),[m
+[31m--                Summary = Summaries[Random.Shared.Next(Summaries.Length)][m
+[31m--            })[m
+[31m--            .ToArray();[m
+[31m--        }[m
+[31m--    }[m
+[31m--}[m
+[1mdiff --cc MyNewHiringWebApp.WebApi/MyNewHiringWebApp.WebApi.csproj[m
+[1mindex 5419ef0,5419ef0..27c5584[m
+[1m--- a/MyNewHiringWebApp.WebApi/MyNewHiringWebApp.WebApi.csproj[m
+[1m+++ b/MyNewHiringWebApp.WebApi/MyNewHiringWebApp.WebApi.csproj[m
+[36m@@@ -1,4 -1,4 +1,4 @@@[m
+[31m--<Project Sdk="Microsoft.NET.Sdk.Web">[m
+[32m++﻿<Project Sdk="Microsoft.NET.Sdk.Web">[m
+  [m
+    <PropertyGroup>[m
+      <TargetFramework>net8.0</TargetFramework>[m
+[36m@@@ -7,7 -7,7 +7,24 @@@[m
+    </PropertyGroup>[m
+  [m
+    <ItemGroup>[m
+[32m++    <PackageReference Include="FluentAssertions" Version="8.6.0" />[m
+[32m++    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.19">[m
+[32m++      <PrivateAssets>all</PrivateAssets>[m
+[32m++      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>[m
+[32m++    </PackageReference>[m
+[32m++    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1" />[m
+[32m++    <PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />[m
+      <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />[m
+    </ItemGroup>[m
+  [m
+[32m++  <ItemGroup>[m
+[32m++    <ProjectReference Include="..\MyNewHiringWebApp.Application\MyNewHiringWebApp.Application.csproj" />[m
+[32m++	  <ProjectReference Include="..\MyNewHiringWebApp.Infrastructure\MyNewHiringWebApp.Infrastructure.csproj" />[m
+[32m++[m
+[32m++  </ItemGroup>[m
+[32m++[m
+[32m++  <ItemGroup>[m
+[32m++    <Folder Include="Controllers\" />[m
+[32m++  </ItemGroup>[m
+[32m++[m
+  </Project>[m
+[1mdiff --cc MyNewHiringWebApp.WebApi/Program.cs[m
+[1mindex 48863a6,48863a6..66fafc1[m
+[1m--- a/MyNewHiringWebApp.WebApi/Program.cs[m
+[1m+++ b/MyNewHiringWebApp.WebApi/Program.cs[m
+[36m@@@ -1,11 -1,11 +1,27 @@@[m
+[32m++using Microsoft.EntityFrameworkCore;[m
+[32m++using Microsoft.OpenApi.Models;[m
+[32m++using MyNewHiringWebApp.Infrastructure.Data;[m
+[32m++[m
+  var builder = WebApplication.CreateBuilder(args);[m
+  [m
+  // Add services to the container.[m
+[31m--[m
+  builder.Services.AddControllers();[m
+[31m--// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle[m
+[32m++[m
+[32m++// DbContext[m
+[32m++builder.Services.AddDbContext<ApplicationDbContext>(options =>[m
+[32m++{[m
+[32m++    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),[m
+[32m++        sql => sql.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null));[m
+[32m++});[m
+[32m++[m
+[32m++[m
+[32m++[m
+[32m++// Swagger/OpenAPI[m
+  builder.Services.AddEndpointsApiExplorer();[m
+[31m--builder.Services.AddSwaggerGen();[m
+[32m++builder.Services.AddSwaggerGen(c =>[m
+[32m++{[m
+[32m++    c.SwaggerDoc("v1", new OpenApiInfo { Title = "MyNewHiringWebApp API", Version = "v1" });[m
+[32m++});[m
+  [m
+  var app = builder.Build();[m
+  [m
+[36m@@@ -17,7 -17,7 +33,6 @@@[m [mif (app.Environment.IsDevelopment()[m
+  }[m
+  [m
+  app.UseHttpsRedirection();[m
+[31m--[m
+  app.UseAuthorization();[m
+  [m
+  app.MapControllers();[m
+[1mdiff --cc MyNewHiringWebApp.WebApi/WeatherForecast.cs[m
+[1mindex 26eb8b0,26eb8b0..0000000[m
+[1mdeleted file mode 100644,100644[m
+[1m--- a/MyNewHiringWebApp.WebApi/WeatherForecast.cs[m
+[1m+++ /dev/null[m
+[36m@@@ -1,13 -1,13 +1,0 @@@[m
+[31m--namespace MyNewHiringWebApp.WebApi[m
+[31m--{[m
+[31m--    public class WeatherForecast[m
+[31m--    {[m
+[31m--        public DateOnly Date { get; set; }[m
+[31m--[m
+[31m--        public int TemperatureC { get; set; }[m
+[31m--[m
+[31m--        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);[m
+[31m--[m
+[31m--        public string? Summary { get; set; }[m
+[31m--    }[m
+[31m--}[m
+[1mdiff --cc MyNewHiringWebApp.WebApi/appsettings.json[m
+[1mindex 10f68b8,10f68b8..b7d754e[m
+[1m--- a/MyNewHiringWebApp.WebApi/appsettings.json[m
+[1m+++ b/MyNewHiringWebApp.WebApi/appsettings.json[m
+[36m@@@ -1,4 -1,4 +1,7 @@@[m
+  {[m
+[32m++  "ConnectionStrings": {[m
+[32m++    "DefaultConnection": "Server=LAPTOP-T23K2UIB\\SQLEXPRESS;Database=MyNewHiringWebAppDb;Trusted_Connection=True;"[m
+[32m++  },[m
+    "Logging": {[m
+      "LogLevel": {[m
+        "Default": "Information",[m
