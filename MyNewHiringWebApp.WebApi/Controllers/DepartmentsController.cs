@@ -1,9 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MyNewHiringWebApp.Application.DTOs.DepartmentDtos;
-using MyNewHiringWebApp.Application.InterfaceServices;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace MyNewHiringWebApp.WebApi.Controllers
 {
