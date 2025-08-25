@@ -62,5 +62,10 @@ namespace MyNewHiringWebApp.Infrastructure.Repositories
         // Save changes
         public virtual async Task<int> SaveChangesAsync(CancellationToken ct = default)
             => await _db.SaveChangesAsync(ct);
+
+        Task IRepository<TEntity>.SaveChangesAsync(CancellationToken ct)
+        {
+            return SaveChangesAsync(ct);
+        }
     }
 }
