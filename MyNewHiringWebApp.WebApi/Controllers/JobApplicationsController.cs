@@ -27,7 +27,7 @@ namespace MyNewHiringWebApp.WebApi.Controllers
         public async Task<bool> Create([FromBody] JobApplicationCreateDto dto, CancellationToken ct = default)
         {
             var id = await _service.CreateAsync(dto, ct);
-            return id > 0;
+            return id;
         }
 
         [HttpPut("{id}")]
