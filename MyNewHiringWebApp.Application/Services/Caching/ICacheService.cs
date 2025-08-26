@@ -14,6 +14,7 @@ namespace MyNewHiringWebApp.Application.Services.Caching
         Task<long> IncrementAsync(string key);
         Task SubscribeInvalidationAsync(string channel, Func<string, Task> handler);
         Task PublishInvalidationAsync(string channel, string message);
+        Task RemoveByPatternAsync(string pattern); // wildcard destekli
 
 
 
