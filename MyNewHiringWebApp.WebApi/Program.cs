@@ -11,34 +11,29 @@ using AutoMapper;
 using MyNewHiringWebApp.Application.Services.Caching;
 using MyNewHiringWebApp.Infrastructure.Caching;
 using StackExchange.Redis;
+using MyNewHiringWebApp.Infrastructure.Services.Caching;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Logging
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 
-// Add services to the container.
 builder.Services.AddControllers()
     .AddJsonOptions(opts =>
     {
         opts.JsonSerializerOptions.PropertyNamingPolicy = null;
     });
 
-// DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
         sql => sql.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null));
 });
 
-// AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
-// Generic repository DI
 builder.Services.AddScoped(typeof(IRepository<>), typeof(BaseRepository<>));
 
-// Concrete services & their repositories
 builder.Services.AddScoped<ICandidateService, CandidateService>();
 builder.Services.AddScoped<IRepository<Candidate>, BaseRepository<Candidate>>();
 
@@ -77,19 +72,15 @@ builder.Services.AddScoped<IRepository<TestSubmission>, BaseRepository<TestSubmi
 
 builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<ICacheService, MemoryCacheService>();
-// appsettings.json içinde "Redis:Configuration": "localhost:6379"
+
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
     ConnectionMultiplexer.Connect(builder.Configuration["Redis:Configuration"]));
 builder.Services.AddSingleton<ICacheService, RedisCacheService>();
 
-
-// Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "MyNewHiringWebApp API", Version = "v1" });
-
-    // DTO isim çakışmalarını önlemek için schemaId'yi namespace ile birlikte kullan
     c.CustomSchemaIds(type =>
     {
         if (type.Namespace != null && type.Namespace.Contains("DTOs"))
@@ -98,7 +89,6 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", builder =>
@@ -111,34 +101,25 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Developer exception page
 app.UseDeveloperExceptionPage();
-
-// Swagger
 app.UseSwagger();
 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "v1"));
-
-// CORS
 app.UseCors("AllowAll");
-
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 
-// DB migrate + seed (opsiyonel)
 using (var scope = app.Services.CreateScope())
 {
     try
     {
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        // db.Database.Migrate(); // ihtiyaç varsa aç
-        // DbSeeder.Seed(db);     // seed varsa aç
+        db.Database.Migrate();
     }
     catch (Exception ex)
     {
-        Console.WriteLine("DB migrate/seed hatası: " + ex);
+        Console.WriteLine("DB migrate hatası: " + ex);
     }
 }
 
 app.Run();
-
