@@ -45,15 +45,11 @@ namespace MyNewHiringWebApp.Infrastructure.Caching
                 await _db.StringSetAsync(key, json, absoluteExpiration);
             else
                 await _db.StringSetAsync(key, json);
-            // Note: Redis doesn't support sliding expiration natively without additional logic.
         }
 
         public async Task RemoveAsync(string key) => await _db.KeyDeleteAsync(key);
 
-        public async Task<long> IncrementAsync(string key)
-        {
-            return await _db.StringIncrementAsync(key);
-        }
+        public async Task<long> IncrementAsync(string key) => await _db.StringIncrementAsync(key);
 
         public Task SubscribeInvalidationAsync(string channel, Func<string, Task> handler)
         {
@@ -61,11 +57,22 @@ namespace MyNewHiringWebApp.Infrastructure.Caching
             return Task.CompletedTask;
         }
 
-        public Task PublishInvalidationAsync(string channel, string message)
+        public Task PublishInvalidationAsync(string channel, string message) => _sub.PublishAsync(channel, message);
+
+        public async Task RemoveByPatternAsync(string pattern)
         {
-            return _sub.PublishAsync(channel, message);
+            var endpoints = _redis.GetEndPoints();
+            foreach (var endpoint in endpoints)
+            {
+                var server = _redis.GetServer(endpoint);
+                foreach (var key in server.Keys(pattern: pattern))
+                {
+                    await _db.KeyDeleteAsync(key);
+                }
+            }
         }
 
         public void Dispose() => _redis?.Dispose();
     }
+
 }
