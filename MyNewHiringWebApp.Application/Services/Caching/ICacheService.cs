@@ -12,7 +12,8 @@ namespace MyNewHiringWebApp.Application.Services.Caching
         Task SetAsync<T>(string key, T value, TimeSpan? absoluteExpiration = null, TimeSpan? slidingExpration = null);
         Task RemoveAsync(string key);
         Task<long> IncrementAsync(string key);
-       
+        Task SubscribeInvalidationAsync(string channel, Func<string, Task> handler);
+        Task PublishInvalidationAsync(string channel, string message);
 
 
 
