@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MyNewHiringWebApp.Application.DTOs.CandidateDtos;
 using MyNewHiringWebApp.Application.InterfaceServices;
+using System.Threading.Tasks;
 
 namespace MyNewHiringWebApp.WebApi.Controllers
 {
@@ -16,37 +17,52 @@ namespace MyNewHiringWebApp.WebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<CandidateDto>> GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            return await _candidateService.GetAllAsync();
+            var list = await _candidateService.GetAllAsync();
+            return Ok(list);
         }
 
         [HttpGet("{id}")]
-        public async Task<CandidateDto> GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            return await _candidateService.GetByIdAsync(id);
+            var candidate = await _candidateService.GetByIdAsync(id);
+            if (candidate == null) return NotFound();
+            return Ok(candidate);
         }
 
         [HttpPost]
-        public async Task<bool> Create([FromBody] CandidateCreateDto createDto)
+        public async Task<IActionResult> Create([FromBody] CandidateCreateDto createDto)
         {
-            if (!ModelState.IsValid) return false;
-            return await _candidateService.CreateAsync(createDto);
-            
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var created = await _candidateService.CreateAsync(createDto);
+            if (created)
+            {
+                return Ok(); // Veya service created id döndürebilirse: CreatedAtAction(nameof(GetById), new { id = createdId }, createdDto);
+            }
+
+            return BadRequest("Unable to create candidate.");
         }
 
         [HttpPut("{id}")]
-        public async Task<bool> Update(int id, [FromBody] CandidateUpdateDto updateDto)
+        public async Task<IActionResult> Update(int id, [FromBody] CandidateUpdateDto updateDto)
         {
-            if (!ModelState.IsValid) return false;
-            return await _candidateService.UpdateAsync(id, updateDto);
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var updated = await _candidateService.UpdateAsync(id, updateDto);
+            if (updated) return NoContent();
+
+            return NotFound();
         }
 
         [HttpDelete("{id}")]
-        public async Task<bool> Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            return await _candidateService.DeleteAsync(id); // bool döner
+            var deleted = await _candidateService.DeleteAsync(id);
+            if (deleted) return NoContent();
 
+            return NotFound();
         }
     }
 }

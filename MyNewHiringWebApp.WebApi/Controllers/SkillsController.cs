@@ -15,36 +15,59 @@ namespace MyNewHiringWebApp.WebApi.Controllers
         public SkillsController(ISkillService service) => _service = service;
 
         [HttpGet]
-        public Task<IEnumerable<SkillDto>> GetAll(CancellationToken ct = default)
-            => _service.GetAllAsync(ct);
+        public async Task<IActionResult> GetAll(CancellationToken ct = default)
+        {
+            var skills = await _service.GetAllAsync(ct);
+            return Ok(skills);
+        }
 
         [HttpGet("{id}")]
-        public Task<SkillDto?> GetById(int id, CancellationToken ct = default)
-            => _service.GetByIdAsync(id, ct);
+        public async Task<IActionResult> GetById(int id, CancellationToken ct = default)
+        {
+            var skill = await _service.GetByIdAsync(id, ct);
+            if (skill == null) return NotFound();
+            return Ok(skill);
+        }
 
         [HttpPost]
-        public async Task<bool> Create([FromBody] SkillCreateDto dto, CancellationToken ct = default)
+        public async Task<IActionResult> Create([FromBody] SkillCreateDto dto, CancellationToken ct = default)
         {
-            var id = await _service.CreateAsync(dto, ct);
-            return id;
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var createdId = await _service.CreateAsync(dto, ct);
+            if (createdId > 0)
+                return CreatedAtAction(nameof(GetById), new { id = createdId }, dto);
+
+            return BadRequest("Skill could not be created.");
         }
 
         [HttpPut("{id}")]
-        public async Task<bool> Update(int id, [FromBody] SkillUpdateDto dto, CancellationToken ct = default)
+        public async Task<IActionResult> Update(int id, [FromBody] SkillUpdateDto dto, CancellationToken ct = default)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var existing = await _service.GetByIdAsync(id, ct);
+            if (existing == null) return NotFound();
+
             await _service.UpdateAsync(id, dto, ct);
-            return true;
+            return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public async Task<bool> Delete(int id, CancellationToken ct = default)
+        public async Task<IActionResult> Delete(int id, CancellationToken ct = default)
         {
+            var existing = await _service.GetByIdAsync(id, ct);
+            if (existing == null) return NotFound();
+
             await _service.DeleteAsync(id, ct);
-            return true;
+            return NoContent();
         }
 
         [HttpGet("search")]
-        public Task<IEnumerable<SkillDto>> SearchByName([FromQuery] string name, CancellationToken ct = default)
-            => _service.SearchByNameAsync(name, ct);
+        public async Task<IActionResult> SearchByName([FromQuery] string name, CancellationToken ct = default)
+        {
+            var results = await _service.SearchByNameAsync(name, ct);
+            return Ok(results);
+        }
     }
 }
