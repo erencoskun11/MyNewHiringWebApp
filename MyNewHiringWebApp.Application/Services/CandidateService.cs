@@ -46,12 +46,8 @@ namespace MyNewHiringWebApp.Application.Services
         {
             var cacheKey = GetByEmailKey(email);
 
-            //1.Cache control
             var cached = await _cache.GetAsync<CandidateDto>(cacheKey);
             if (cached != null) return cached;
-
-            //2. pull from db
-
             var candidate = await _repo.FindAsync(c => c.Email == email, ct);
             if (candidate == null) return null;
 
