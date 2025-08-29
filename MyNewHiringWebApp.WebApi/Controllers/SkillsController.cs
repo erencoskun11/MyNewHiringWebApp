@@ -35,7 +35,7 @@ namespace MyNewHiringWebApp.WebApi.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
             var createdId = await _service.CreateAsync(dto, ct);
-            if (createdId > 0)
+            if (createdId )
                 return CreatedAtAction(nameof(GetById), new { id = createdId }, dto);
 
             return BadRequest("Skill could not be created.");
