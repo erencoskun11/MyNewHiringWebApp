@@ -9,70 +9,58 @@ using System.Threading.Tasks;
 
 namespace MyNewHiringWebApp.Infrastructure.Caching
 {
-    public class RedisCacheService : ICacheService, IDisposable
+    public sealed class RedisCacheService : ICacheService, IDisposable
     {
+        private readonly IConnectionMultiplexer _mux;
         private readonly IDatabase _db;
-        private readonly IConnectionMultiplexer _redis;
-        private readonly ISubscriber _sub;
+        private readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web);
 
-        public RedisCacheService(IConnectionMultiplexer multiplexer)
+        public RedisCacheService(IConnectionMultiplexer mux)
         {
-            _redis = multiplexer;
-            _db = multiplexer.GetDatabase();
-            _sub = multiplexer.GetSubscriber();
-        }
-
-        private static byte[] Serialize<T>(T item) =>
-            JsonSerializer.SerializeToUtf8Bytes(item, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
-
-        private static T? Deserialize<T>(byte[]? bytes)
-        {
-            if (bytes == null) return default;
-            return JsonSerializer.Deserialize<T>(bytes, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+            _mux = mux ?? throw new ArgumentNullException(nameof(mux));
+            _db = _mux.GetDatabase();
         }
 
         public async Task<T?> GetAsync<T>(string key)
         {
-            var val = await _db.StringGetAsync(key);
+            var val = await _db.StringGetAsync(key).ConfigureAwait(false);
             if (val.IsNullOrEmpty) return default;
-            return JsonSerializer.Deserialize<T>(val!);
+            try
+            {
+                return JsonSerializer.Deserialize<T>(val!, _jsonOptions);
+            }
+            catch
+            {
+                return default;
+            }
         }
 
-        public async Task SetAsync<T>(string key, T value, TimeSpan? absoluteExpiration = null, TimeSpan? slidingExpiration = null)
+        public async Task SetAsync<T>(string key, T value, TimeSpan? expiration = null)
         {
-            var json = JsonSerializer.Serialize(value);
-            if (absoluteExpiration.HasValue)
-                await _db.StringSetAsync(key, json, absoluteExpiration);
-            else
-                await _db.StringSetAsync(key, json);
+            var json = JsonSerializer.Serialize(value, _jsonOptions);
+            await _db.StringSetAsync(key, json, expiration).ConfigureAwait(false);
         }
 
-        public async Task RemoveAsync(string key) => await _db.KeyDeleteAsync(key);
-
-        public async Task<long> IncrementAsync(string key) => await _db.StringIncrementAsync(key);
-
-        public Task SubscribeInvalidationAsync(string channel, Func<string, Task> handler)
+        public async Task RemoveAsync(string key)
         {
-            _sub.Subscribe(channel, async (chan, msg) => await handler(msg));
-            return Task.CompletedTask;
+            await _db.KeyDeleteAsync(key).ConfigureAwait(false);
         }
-
-        public Task PublishInvalidationAsync(string channel, string message) => _sub.PublishAsync(channel, message);
 
         public async Task RemoveByPatternAsync(string pattern)
         {
-            var endpoints = _redis.GetEndPoints();
+            var endpoints = _mux.GetEndPoints();
             foreach (var endpoint in endpoints)
             {
-                var server = _redis.GetServer(endpoint);
+                var server = _mux.GetServer(endpoint);
                 foreach (var key in server.Keys(pattern: pattern))
                 {
-                    await _db.KeyDeleteAsync(key);
+                    await _db.KeyDeleteAsync(key).ConfigureAwait(false);
                 }
             }
         }
 
-        public void Dispose() => _redis?.Dispose();
+        public void Dispose()
+        {
+        }
     }
-
 }

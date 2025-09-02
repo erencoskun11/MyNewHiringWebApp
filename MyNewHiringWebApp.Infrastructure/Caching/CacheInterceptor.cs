@@ -16,7 +16,7 @@ namespace MyNewHiringWebApp.Infrastructure.Caching
         public void Intercept(IInvocation invocation)
         {
             var method = invocation.MethodInvocationTarget ?? invocation.Method;
-            var cachedAttr = method.GetCustomAttribute<CachedAttribute>();
+            var cachedAttr = method.GetCustomAttribute<CacheManagementAttribute>();
             if (cachedAttr != null)
             {
                 var key = BuildCacheKey(cachedAttr.CacheKey, invocation.Arguments);
