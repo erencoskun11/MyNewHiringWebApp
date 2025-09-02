@@ -16,4 +16,8 @@
     <ProjectReference Include="..\MyNewHiringWebApp.Domain\MyNewHiringWebApp.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Services\Caching\Attributes\" />
+  </ItemGroup>
+
 </Project>
