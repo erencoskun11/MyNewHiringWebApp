@@ -1,9 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MyNewHiringWebApp.Application.DTOs.InterviewerDtos;
 using MyNewHiringWebApp.Application.InterfaceServices;
+using MyNewHiringWebApp.Application.Models;
+using MyNewHiringWebApp.Application.Services.Caching;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using MyNewHiringWebApp.Application.Models;
+using MyNewHiringWebApp.Application.Services.Caching.Attributes;
 
 namespace MyNewHiringWebApp.WebApi.Controllers
 {
@@ -15,14 +19,18 @@ namespace MyNewHiringWebApp.WebApi.Controllers
         public InterviewersController(IInterviewerService service) => _service = service;
 
         [HttpGet]
+        [CacheManagement(typeof(InterviewerCacheModel), CacheOperationType.Read)]
         public Task<IEnumerable<InterviewerDto>> GetAll(CancellationToken ct = default)
             => _service.GetAllAsync(ct);
 
         [HttpGet("{id}")]
+        [CacheManagement(typeof(InterviewerCacheModel), CacheOperationType.Read)]
+
         public Task<InterviewerDto?> GetById(int id, CancellationToken ct = default)
             => _service.GetByIdAsync(id, ct);
 
         [HttpPost]
+        [CacheManagement(typeof(InterviewerCacheModel), CacheOperationType.Refresh)]
         public async Task<bool> Create([FromBody] InterviewerCreateDto dto, CancellationToken ct = default)
         {
             var id = await _service.CreateAsync(dto, ct);
@@ -30,6 +38,7 @@ namespace MyNewHiringWebApp.WebApi.Controllers
         }
 
         [HttpPut("{id}")]
+        [CacheManagement(typeof(InterviewerCacheModel), CacheOperationType.Refresh)]
         public async Task<bool> Update(int id, [FromBody] InterviewerUpdateDto dto, CancellationToken ct = default)
         {
             await _service.UpdateAsync(id, dto, ct);
@@ -37,6 +46,7 @@ namespace MyNewHiringWebApp.WebApi.Controllers
         }
 
         [HttpDelete("{id}")]
+        [CacheManagement(typeof(InterviewerCacheModel),CacheOperationType.Refresh)]
         public async Task<bool> Delete(int id, CancellationToken ct = default)
         {
             await _service.DeleteAsync(id, ct);

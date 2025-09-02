@@ -2,6 +2,8 @@
 using MyNewHiringWebApp.Application.DTOs.CandidateSkillDtos;
 using MyNewHiringWebApp.Application.Interface;
 using MyNewHiringWebApp.Application.InterfaceServices;
+using MyNewHiringWebApp.Application.Models;
+using MyNewHiringWebApp.Application.Services.Caching;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,14 +18,19 @@ namespace MyNewHiringWebApp.WebApi.Controllers
         public CandidateSkillsController(ICandidateSkillService service) => _service = service;
 
         [HttpGet]
+        [CacheManagement(typeof(CandidateSkillCacheModel),CacheOperationType.Read)]
         public Task<IEnumerable<CandidateSkillDto>> GetAll(CancellationToken ct = default)
             => _service.GetAllAsync(ct);
 
         [HttpGet("{id}")]
+        [CacheManagement(typeof(CandidateSkillCacheModel), CacheOperationType.Read)]
+
         public Task<CandidateSkillDto?> GetById(int id, CancellationToken ct = default)
             => _service.GetByIdAsync(id, ct);
 
         [HttpPost]
+        [CacheManagement(typeof(CandidateSkillCacheModel), CacheOperationType.Refresh)]
+
         public async Task<bool> Create([FromBody] CandidateSkillCreateDto dto, CancellationToken ct = default)
         {
             var id = await _service.CreateAsync(dto, ct);
@@ -31,6 +38,8 @@ namespace MyNewHiringWebApp.WebApi.Controllers
         }
 
         [HttpPut("{id}")]
+        [CacheManagement(typeof(CandidateSkillCacheModel), CacheOperationType.Refresh)]
+
         public async Task<bool> Update(int id, [FromBody] CandidateSkillUpdateDto dto, CancellationToken ct = default)
         {
             await _service.UpdateAsync(id, dto, ct);
@@ -38,6 +47,7 @@ namespace MyNewHiringWebApp.WebApi.Controllers
         }
 
         [HttpDelete("{id}")]
+        [CacheManagement(typeof(CandidateSkillCacheModel), CacheOperationType.Refresh)]
         public async Task<bool> Delete(int id, CancellationToken ct = default)
         {
             await _service.DeleteAsync(id, ct);

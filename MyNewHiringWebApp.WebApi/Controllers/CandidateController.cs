@@ -1,7 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MyNewHiringWebApp.Application.DTOs.CandidateDtos;
 using MyNewHiringWebApp.Application.InterfaceServices;
+using MyNewHiringWebApp.Application.Models;
+using MyNewHiringWebApp.Application.Services.Caching;
+using System.Collections;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using MyNewHiringWebApp.Application.Models;
+using MyNewHiringWebApp.Application.Services.Caching.Attributes;
+
 
 namespace MyNewHiringWebApp.WebApi.Controllers
 {
@@ -17,52 +24,40 @@ namespace MyNewHiringWebApp.WebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        [CacheManagement(typeof(CandidateCacheModel),CacheOperationType.Read)]
+        public async Task<IEnumerable<CandidateDto>> GetAll()
         {
-            var list = await _candidateService.GetAllAsync();
-            return Ok(list);
+            return await _candidateService.GetAllAsync();
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        [CacheManagement(typeof(CandidateCacheModel),CacheOperationType.Read)]
+        public async Task<CandidateDto?> GetById(int id)
         {
-            var candidate = await _candidateService.GetByIdAsync(id);
-            if (candidate == null) return NotFound();
-            return Ok(candidate);
+            return await _candidateService.GetByIdAsync(id);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CandidateCreateDto createDto)
+        [CacheManagement(typeof(CandidateCacheModel),CacheOperationType.Refresh)]
+        public async Task<bool> Create([FromBody] CandidateCreateDto createDto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-
-            var created = await _candidateService.CreateAsync(createDto);
-            if (created)
-            {
-                return Ok(); // Veya service created id döndürebilirse: CreatedAtAction(nameof(GetById), new { id = createdId }, createdDto);
-            }
-
-            return BadRequest("Unable to create candidate.");
+            return await _candidateService.CreateAsync(createDto);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] CandidateUpdateDto updateDto)
+        [CacheManagement(typeof(CandidateCacheModel), CacheOperationType.Refresh)]
+
+        public async Task<bool> Update(int id, [FromBody] CandidateUpdateDto updateDto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-
-            var updated = await _candidateService.UpdateAsync(id, updateDto);
-            if (updated) return NoContent();
-
-            return NotFound();
+            return await _candidateService.UpdateAsync(id, updateDto);
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var deleted = await _candidateService.DeleteAsync(id);
-            if (deleted) return NoContent();
+        [CacheManagement(typeof(CandidateCacheModel), CacheOperationType.Refresh)]
 
-            return NotFound();
+        public async Task<bool> Delete(int id)
+        {
+            return await _candidateService.DeleteAsync(id);
         }
     }
 }

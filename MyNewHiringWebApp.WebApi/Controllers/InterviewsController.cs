@@ -2,11 +2,15 @@
 using MyNewHiringWebApp.Application.DTOs.InterviesDtos;
 using MyNewHiringWebApp.Application.DTOs.InterviewDtos;
 using MyNewHiringWebApp.Application.InterfaceServices;
+using MyNewHiringWebApp.Application.Models;
+using MyNewHiringWebApp.Application.Services.Caching;
 using MyNewHiringWebApp.Domain.Enum;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using MyNewHiringWebApp.Application.Models;
+using MyNewHiringWebApp.Application.Services.Caching.Attributes;
 
 namespace MyNewHiringWebApp.WebApi.Controllers
 {
@@ -18,14 +22,17 @@ namespace MyNewHiringWebApp.WebApi.Controllers
         public InterviewsController(IInterviewService service) => _service = service;
 
         [HttpGet]
+        [CacheManagement(typeof(InterviewCacheModel),CacheOperationType.Read)]
         public Task<IEnumerable<InterviewDto>> GetAll(CancellationToken ct = default)
             => _service.GetAllAsync(ct);
 
         [HttpGet("{id}")]
+        [CacheManagement(typeof(InterviewCacheModel), CacheOperationType.Read)]
         public Task<InterviewDto?> GetById(int id, CancellationToken ct = default)
             => _service.GetByIdAsync(id, ct);
 
         [HttpPost]
+        [CacheManagement(typeof(InterviewCacheModel), CacheOperationType.Refresh)]
         public async Task<bool> Create([FromBody] InterviewCreateDto dto, CancellationToken ct = default)
         {
             var id = await _service.CreateAsync(dto, ct);
@@ -33,6 +40,7 @@ namespace MyNewHiringWebApp.WebApi.Controllers
         }
 
         [HttpPut("{id}")]
+        [CacheManagement(typeof(InterviewCacheModel), CacheOperationType.Refresh)]
         public async Task<bool> Update(int id, [FromBody] InterviewUpdateDto dto, CancellationToken ct = default)
         {
             await _service.UpdateAsync(id, dto, ct);
@@ -40,6 +48,7 @@ namespace MyNewHiringWebApp.WebApi.Controllers
         }
 
         [HttpDelete("{id}")]
+        [CacheManagement(typeof(InterviewCacheModel), CacheOperationType.Refresh)]
         public async Task<bool> Delete(int id, CancellationToken ct = default)
         {
             await _service.DeleteAsync(id, ct);
