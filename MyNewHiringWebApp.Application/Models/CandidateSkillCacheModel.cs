@@ -16,6 +16,6 @@ namespace MyNewHiringWebApp.Application.Models
 
         public string GetCacheKey() => "candidateSkills:list";
         public string GetSingleKey(object id) => $"candidateSkills:{id}"; // id could be composite; pass $"{candidateId}:{skillId}" when calling
-        public Type CacheValueType => typeof(CandidateSkillModel);
+        public Type CacheValueType => typeof(CandidateSkillCacheModel);
     }
 }

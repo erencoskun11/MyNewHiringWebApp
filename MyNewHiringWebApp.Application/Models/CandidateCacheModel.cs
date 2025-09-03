@@ -21,7 +21,7 @@ namespace MyNewHiringWebApp.Application.Models
 
         public string GetCacheKey() => "candidates:list";
         public string GetSingleKey(object id) => $"candidates:{id}";
-        public Type CacheValueType => typeof(CandidateModel);
+        public Type CacheValueType => typeof(CandidateCacheModel);
     }
 
     public sealed class ResumeSummaryCacheModel : ICacheKeyProvider
@@ -32,6 +32,15 @@ namespace MyNewHiringWebApp.Application.Models
 
         public string GetCacheKey() => "resumeSummaries:list";
         public string GetSingleKey(object id) => $"resumeSummaries:{id}";
-        public Type CacheValueType => typeof(ResumeSummaryModel);
+        public Type CacheValueType => typeof(ResumeSummaryCacheModel);
     }
 }
+
+
+
+
+
+
+
+
+

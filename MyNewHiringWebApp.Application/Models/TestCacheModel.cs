@@ -15,6 +15,6 @@ namespace MyNewHiringWebApp.Application.Models
 
         public string GetCacheKey() => "tests:list";
         public string GetSingleKey(object id) => $"tests:{id}";
-        public Type CacheValueType => typeof(TestModel);
+        public Type CacheValueType => typeof(TestCacheModel);
     }
 }

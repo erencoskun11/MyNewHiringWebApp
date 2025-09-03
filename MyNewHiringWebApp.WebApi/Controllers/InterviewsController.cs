@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MyNewHiringWebApp.Application.Models;
-using MyNewHiringWebApp.Application.Services.Caching.Attributes;
+using MyNewHiringWebApp.WebApi.Attributes;
 
 namespace MyNewHiringWebApp.WebApi.Controllers
 {
