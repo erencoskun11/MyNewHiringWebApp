@@ -14,6 +14,6 @@ namespace MyNewHiringWebApp.Application.Models
 
         public string GetCacheKey() => "departments:list";
         public string GetSingleKey(object id) => $"departments:{id}";
-        public Type CacheValueType => typeof(DepartmentModel);
+        public Type CacheValueType => typeof(DepartmentCacheModel);
     }
 }
