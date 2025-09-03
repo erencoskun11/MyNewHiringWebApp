@@ -11,7 +11,6 @@ using AutoMapper;
 using MyNewHiringWebApp.Application.Services.Caching;
 using MyNewHiringWebApp.Infrastructure.Caching;
 using StackExchange.Redis;
-using MyNewHiringWebApp.Infrastructure.Services.Caching;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -70,8 +69,6 @@ builder.Services.AddScoped<IRepository<TestQuestion>, BaseRepository<TestQuestio
 builder.Services.AddScoped<ITestSubmissionService, TestSubmissionService>();
 builder.Services.AddScoped<IRepository<TestSubmission>, BaseRepository<TestSubmission>>();
 
-builder.Services.AddMemoryCache();
-builder.Services.AddSingleton<ICacheService, MemoryCacheService>();
 
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
     ConnectionMultiplexer.Connect(builder.Configuration["Redis:Configuration"]));
