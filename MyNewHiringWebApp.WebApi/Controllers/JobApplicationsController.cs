@@ -18,14 +18,17 @@ namespace MyNewHiringWebApp.WebApi.Controllers
         public JobApplicationsController(IJobApplicationService service) => _service = service;
 
         [HttpGet]
+        [CacheManagement(typeof(JobApplicationCacheModel),CacheOperationType.Read)]
         public Task<IEnumerable<JobApplicationDto>> GetAll(CancellationToken ct = default)
             => _service.GetAllAsync(ct);
 
         [HttpGet("{id}")]
+        [CacheManagement(typeof(JobApplicationCacheModel),CacheOperationType.Read)]
         public Task<JobApplicationDto?> GetById(int id, CancellationToken ct = default)
             => _service.GetByIdAsync(id, ct);
 
         [HttpPost]
+        [CacheManagement(typeof(JobApplicationCacheModel),CacheOperationType.Refresh)]
         public async Task<bool> Create([FromBody] JobApplicationCreateDto dto, CancellationToken ct = default)
         {
             var id = await _service.CreateAsync(dto, ct);
@@ -33,6 +36,8 @@ namespace MyNewHiringWebApp.WebApi.Controllers
         }
 
         [HttpPut("{id}")]
+        [CacheManagement(typeof(JobApplicationCacheModel), CacheOperationType.Refresh)]
+
         public async Task<bool> Update(int id, [FromBody] JobApplicationUpdateDto dto, CancellationToken ct = default)
         {
             await _service.UpdateAsync(id, dto, ct);
@@ -40,6 +45,8 @@ namespace MyNewHiringWebApp.WebApi.Controllers
         }
 
         [HttpDelete("{id}")]
+        [CacheManagement(typeof(JobApplicationCacheModel), CacheOperationType.Refresh)]
+
         public async Task<bool> Delete(int id, CancellationToken ct = default)
         {
             await _service.DeleteAsync(id, ct);
@@ -59,3 +66,4 @@ namespace MyNewHiringWebApp.WebApi.Controllers
             => _service.GetAppliedAfterAsync(date, ct);
     }
 }
+
