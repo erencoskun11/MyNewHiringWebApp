@@ -1,6 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿
+using Microsoft.AspNetCore.Mvc;
 using MyNewHiringWebApp.Application.DTOs.SkillDtos;
 using MyNewHiringWebApp.Application.InterfaceServices;
+using MyNewHiringWebApp.Application.Models;
+using MyNewHiringWebApp.Application.Services.Caching;
+using MyNewHiringWebApp.WebApi.Attributes;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,59 +19,48 @@ namespace MyNewHiringWebApp.WebApi.Controllers
         public SkillsController(ISkillService service) => _service = service;
 
         [HttpGet]
-        public async Task<IActionResult> GetAll(CancellationToken ct = default)
+        [CacheManagement(typeof(SkillCacheModel), CacheOperationType.Read)]
+
+        public async Task<IEnumerable<SkillDto>> GetAll(CancellationToken ct = default)
         {
-            var skills = await _service.GetAllAsync(ct);
-            return Ok(skills);
+            return await _service.GetAllAsync(ct);
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id, CancellationToken ct = default)
+        [CacheManagement(typeof(SkillCacheModel), CacheOperationType.Read)]
+
+        public async Task<SkillDto?> GetById(int id, CancellationToken ct = default)
         {
-            var skill = await _service.GetByIdAsync(id, ct);
-            if (skill == null) return NotFound();
-            return Ok(skill);
+            return await _service.GetByIdAsync(id, ct);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] SkillCreateDto dto, CancellationToken ct = default)
+        [CacheManagement(typeof(SkillCacheModel), CacheOperationType.Refresh)]
+        public async Task<bool> Create([FromBody] SkillCreateDto dto, CancellationToken ct = default)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-
-            var createdId = await _service.CreateAsync(dto, ct);
-            if (createdId )
-                return CreatedAtAction(nameof(GetById), new { id = createdId }, dto);
-
-            return BadRequest("Skill could not be created.");
+            if (!ModelState.IsValid) return false;
+            return await _service.CreateAsync(dto, ct);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] SkillUpdateDto dto, CancellationToken ct = default)
+        [CacheManagement(typeof(SkillCacheModel), CacheOperationType.Refresh)]
+        public async Task<bool> Update(int id, [FromBody] SkillUpdateDto dto, CancellationToken ct = default)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-
-            var existing = await _service.GetByIdAsync(id, ct);
-            if (existing == null) return NotFound();
-
-            await _service.UpdateAsync(id, dto, ct);
-            return NoContent();
+            if (!ModelState.IsValid) return false;
+            return await _service.UpdateAsync(id, dto, ct);
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id, CancellationToken ct = default)
+        [CacheManagement(typeof(SkillCacheModel), CacheOperationType.Refresh)]
+        public async Task<bool> Delete(int id, CancellationToken ct = default)
         {
-            var existing = await _service.GetByIdAsync(id, ct);
-            if (existing == null) return NotFound();
-
-            await _service.DeleteAsync(id, ct);
-            return NoContent();
+            return await _service.DeleteAsync(id, ct);
         }
 
         [HttpGet("search")]
-        public async Task<IActionResult> SearchByName([FromQuery] string name, CancellationToken ct = default)
+        public async Task<IEnumerable<SkillDto>> SearchByName([FromQuery] string name, CancellationToken ct = default)
         {
-            var results = await _service.SearchByNameAsync(name, ct);
-            return Ok(results);
+            return await _service.SearchByNameAsync(name, ct);
         }
     }
 }
