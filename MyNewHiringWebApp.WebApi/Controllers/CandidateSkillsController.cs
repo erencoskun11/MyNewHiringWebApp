@@ -7,6 +7,7 @@ using MyNewHiringWebApp.Application.Services.Caching;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using MyNewHiringWebApp.WebApi.Attributes;
 
 namespace MyNewHiringWebApp.WebApi.Controllers
 {
