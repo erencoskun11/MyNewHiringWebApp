@@ -11,7 +11,8 @@ using AutoMapper;
 using MyNewHiringWebApp.Application.Services.Caching;
 using MyNewHiringWebApp.Infrastructure.Caching;
 using StackExchange.Redis;
-
+using MyNewHiringWebApp.Application.Messaging.Interfaces;
+using MyNewHiringWebApp.Infrastructure.Messaging;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Logging.ClearProviders();
@@ -69,6 +70,9 @@ builder.Services.AddScoped<IRepository<TestQuestion>, BaseRepository<TestQuestio
 builder.Services.AddScoped<ITestSubmissionService, TestSubmissionService>();
 builder.Services.AddScoped<IRepository<TestSubmission>, BaseRepository<TestSubmission>>();
 
+builder.Services.AddScoped<ICandidateEventPublisher, RabbitMqCandidateEventPublisher>();
+builder.Services.AddAutoMapper(typeof(CandidateProfile).Assembly);
+
 
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
     ConnectionMultiplexer.Connect(builder.Configuration["Redis:Configuration"]));
@@ -85,6 +89,17 @@ builder.Services.AddSwaggerGen(c =>
         return type.Name;
     });
 });
+
+builder.Services.AddSingleton(sp =>
+{
+    var config = builder.Configuration.GetSection("RabbitMq");
+    return new RabbitMqConnectionFactory(
+        config["Host"]!,
+        config["UserName"]!,
+        config["Password"]!
+    );
+});
+
 
 builder.Services.AddCors(options =>
 {
