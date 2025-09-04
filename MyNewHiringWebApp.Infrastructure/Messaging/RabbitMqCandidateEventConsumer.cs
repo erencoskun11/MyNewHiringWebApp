@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Hosting;
-
 using MyNewHiringWebApp.Application.ETOs.CandidateEtos;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
