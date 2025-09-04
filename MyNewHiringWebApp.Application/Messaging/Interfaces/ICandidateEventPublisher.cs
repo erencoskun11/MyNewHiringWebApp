@@ -1,14 +1,13 @@
-﻿using MyNewHiringWebApp.Application.Messaging.Events;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using MyNewHiringWebApp.Application.ETOs.CandidateEtos;
+using MyNewHiringWebApp.Application.ETOs.CandidateSkillsEtos;
 
 namespace MyNewHiringWebApp.Application.Messaging.Interfaces
 {
-    public class ICandidateEventPublisher
+    public interface ICandidateEventPublisher
     {
-        Task PublishCandidateCreatedAsync(CandidateCreateEvent @event);
+        Task PublishCandidateCreatedAsync(CandidateCreatedEto eto);
+        Task PublishCandidateSkillCreatedAsync(CandidateSkillCreatedEto eto);
     }
 }
+
