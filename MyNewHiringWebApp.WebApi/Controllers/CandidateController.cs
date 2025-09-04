@@ -42,7 +42,20 @@ namespace MyNewHiringWebApp.WebApi.Controllers
         [CacheManagement(typeof(CandidateCacheModel),CacheOperationType.Refresh)]
         public async Task<bool> Create([FromBody] CandidateCreateDto createDto)
         {
-            return await _candidateService.CreateAsync(createDto);
+
+            var result = await _candidateService.CreateAsync(createDto);
+
+            if (result)
+            {
+                var candidate = await _ candidateService.GetByEmailAsync(createDto.Email);
+
+                var eto = _mapper.Map<CandidateCreateEto>(candidate);
+
+                await _candidateEventPublisher.PublishCandidateCreateAsync(eto);
+            }
+            return result;
+
+
         }
 
         [HttpPut("{id}")]
