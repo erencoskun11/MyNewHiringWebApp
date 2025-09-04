@@ -35,7 +35,7 @@ namespace MyNewHiringWebApp.Infrastructure.Messaging
             var body : Encoding.UTF8.GetBytes(JsonSerializer.Serialize(@event));
 
             var props = channel.CreateBasicProperties();
-            props.Deli
+            props.DeliveryModel = 2;
             channel.BasicPublish(exchange: "",
                 rotingKey: _queueName,
                 basicProperties: props,
