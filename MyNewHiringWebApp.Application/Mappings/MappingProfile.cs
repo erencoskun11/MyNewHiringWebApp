@@ -11,6 +11,7 @@ using MyNewHiringWebApp.Application.DTOs.SkillDtos;
 using MyNewHiringWebApp.Application.DTOs.SubmittedAnswerCreateDtos;
 using MyNewHiringWebApp.Application.DTOs.TestDtos;
 using MyNewHiringWebApp.Application.DTOs.TestQuestionDtos;
+using MyNewHiringWebApp.Application.Eto;
 using MyNewHiringWebApp.Domain.Entities;
 using System.Linq;
 
@@ -64,8 +65,18 @@ namespace MyNewHiringWebApp.Application.Mappings
                 .ForMember(d => d.SkillName, opt => opt.MapFrom(s => s.Skill != null ? s.Skill.Name : string.Empty))
                 .ForMember(d => d.Level, opt => opt.MapFrom(s => s.Level));
 
-            // ---------- Department ----------
-            CreateMap<DepartmentCreateDto, Department>().ReverseMap();
+
+            //rabbit icin eto 
+            CreateMap<Candidate, CandidateCreatedEto>()
+                .ForMember(dest => dest.CandidateId, opt => opt.MapFrom(src => src.Id));
+        }
+
+
+
+
+
+        // ---------- Department ----------
+        CreateMap<DepartmentCreateDto, Department>().ReverseMap();
             CreateMap<DepartmentUpdateDto, Department>().ReverseMap();
             CreateMap<Department, DepartmentDto>().ReverseMap();
 
