@@ -28,6 +28,12 @@ namespace MyNewHiringWebApp.Application.Services
             var skills = await _repo.ListAsync(cs => cs.SkillId == skillId, ct);
             return _mapper.Map<IEnumerable<CandidateSkillDto>>(skills);
         }
+        public async Task<CandidateSkill?> GetByCandidateAndSkillAsync(int candidateId, int skillId, CancellationToken ct = default)
+        {
+            // Eğer repository'nizde FirstOrDefaultAsync varsa onu kullan; yoksa ListAsync + FirstOrDefault.
+            var list = await _repo.ListAsync(cs => cs.CandidateId == candidateId && cs.SkillId == skillId, ct);
+            return list?.FirstOrDefault();
+        }
 
     }
 }
