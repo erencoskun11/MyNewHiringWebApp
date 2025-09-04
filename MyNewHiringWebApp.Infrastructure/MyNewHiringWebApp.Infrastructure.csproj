@@ -8,6 +8,8 @@
 
   <ItemGroup>
     <PackageReference Include="Castle.Core" Version="5.2.1" />
+    <PackageReference Include="MassTransit" Version="8.5.2" />
+    <PackageReference Include="MassTransit.RabbitMQ" Version="8.5.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.19" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.19">
       <PrivateAssets>all</PrivateAssets>
@@ -19,6 +21,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="9.0.8" />
+    <PackageReference Include="RabbitMQ.Client" Version="7.1.2" />
     <PackageReference Include="StackExchange.Redis" Version="2.9.11" />
   </ItemGroup>
 
