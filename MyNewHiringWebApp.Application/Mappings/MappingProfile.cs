@@ -11,8 +11,8 @@ using MyNewHiringWebApp.Application.DTOs.SkillDtos;
 using MyNewHiringWebApp.Application.DTOs.SubmittedAnswerCreateDtos;
 using MyNewHiringWebApp.Application.DTOs.TestDtos;
 using MyNewHiringWebApp.Application.DTOs.TestQuestionDtos;
-using MyNewHiringWebApp.Application.Eto;
 using MyNewHiringWebApp.Application.ETOs.CandidateEtos;
+using MyNewHiringWebApp.Application.ETOs.CandidateSkillsEtos;
 using MyNewHiringWebApp.Domain.Entities;
 using System.Linq;
 
@@ -41,23 +41,32 @@ namespace MyNewHiringWebApp.Application.Mappings
                     opt => opt.MapFrom(src =>
                         src.CandidateSkills == null
                             ? null
-                            : src.CandidateSkills.Select(cs => new CandidateSkillDto
+                            : src.CandidateSkills.Select(cs => new MyNewHiringWebApp.Application.DTOs.CandidateSkillDtos.CandidateSkillDto
                             {
                                 SkillName = cs.Skill != null ? cs.Skill.Name : string.Empty,
                                 Level = cs.Level
                             }).ToList()
                     ));
 
+            // ---------- CandidateSkill ----------
             CreateMap<CandidateSkillCreateDto, CandidateSkill>().ReverseMap();
             CreateMap<CandidateSkillUpdateDto, CandidateSkill>().ReverseMap();
 
-            CreateMap<CandidateSkill, CandidateSkillDto>()
+            CreateMap<CandidateSkill, MyNewHiringWebApp.Application.DTOs.CandidateSkillDtos.CandidateSkillDto>()
                 .ForMember(d => d.SkillName, opt => opt.MapFrom(s => s.Skill != null ? s.Skill.Name : string.Empty))
                 .ForMember(d => d.Level, opt => opt.MapFrom(s => s.Level));
 
-            // Candidate -> ETO for RabbitMQ
+            // ---------- ETO for RabbitMQ ----------
+            // Map from entity to ETO
             CreateMap<Candidate, CandidateCreatedEto>()
                 .ForMember(dest => dest.CandidateId, opt => opt.MapFrom(src => src.Id));
+
+            // Map from DTO to ETO (needed because controller/service returns CandidateDto)
+            CreateMap<CandidateDto, CandidateCreatedEto>()
+                .ForMember(dest => dest.CandidateId, opt => opt.MapFrom(src => src.Id));
+
+            CreateMap<CandidateSkill, CandidateSkillCreatedEto>()
+                .ForMember(dest => dest.SkillName, opt => opt.MapFrom(src => src.Skill != null ? src.Skill.Name : string.Empty));
 
             // ---------- Department ----------
             CreateMap<DepartmentCreateDto, Department>().ReverseMap();
@@ -121,4 +130,3 @@ namespace MyNewHiringWebApp.Application.Mappings
         }
     }
 }
-
