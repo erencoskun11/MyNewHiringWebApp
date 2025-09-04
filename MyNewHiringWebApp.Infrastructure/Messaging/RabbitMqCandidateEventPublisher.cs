@@ -1,47 +1,60 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
-using System.Threading.Tasks;
-using MyNewHiringWebApp.Application.Messaging.Events;
+﻿// MyNewHiringWebApp.Infrastructure/Messaging/RabbitMqCandidateEventPublisher.cs
+using MyNewHiringWebApp.Application.ETOs.CandidateEtos;
+using MyNewHiringWebApp.Application.ETOs.CandidateSkillsEtos;
 using MyNewHiringWebApp.Application.Messaging.Interfaces;
 using RabbitMQ.Client;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
+
 namespace MyNewHiringWebApp.Infrastructure.Messaging
 {
     public class RabbitMqCandidateEventPublisher : ICandidateEventPublisher
     {
         private readonly RabbitMqConnectionFactory _connectionFactory;
-        private const string QueueName = "candidate.created.queue";
-
+        private const string CandidateQueueName = "candidate.created.queue";
+        private const string CandidateSkillQueueName = "candidate.skill.created.queue";
 
         public RabbitMqCandidateEventPublisher(RabbitMqConnectionFactory connectionFactory)
         {
             _connectionFactory = connectionFactory;
         }
 
-        public Task PublishCandidateCreatedAsync(CandidateCreatedEvent @event)
+        public Task PublishCandidateCreatedAsync(CandidateCreatedEto eto)
         {
-            using var connection = _connectionFactory.CreateConnection();
-            using var channel = connection.CreateModel();
+            // using ile bağlantı ve kanal kapatılıyor
+            using (var connection = _connectionFactory.CreateConnection())
+            using (var channel = connection.CreateModel())
+            {
+                channel.QueueDeclare(queue: CandidateQueueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
 
-            
-            channel.QueueDeclare(queue: QueueName,
-                durable: true,
-                exclusive: false,
-                autoDelete: false,
-                arguments: null);
+                var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(eto));
 
-            var body : Encoding.UTF8.GetBytes(JsonSerializer.Serialize(@event));
+                var props = channel.CreateBasicProperties();
+                props.DeliveryMode = 2; // persistent
 
-            var props = channel.CreateBasicProperties();
-            props.DeliveryModel = 2;
-            channel.BasicPublish(exchange: "",
-                rotingKey: _queueName,
-                basicProperties: props,
-                body: body);
+                channel.BasicPublish(exchange: "", routingKey: CandidateQueueName, basicProperties: props, body: body);
+            }
 
-            return Task.ComletedTask;     
+            return Task.CompletedTask;
+        }
+
+        public Task PublishCandidateSkillCreatedAsync(CandidateSkillCreatedEto eto)
+        {
+            using (var connection = _connectionFactory.CreateConnection())
+            using (var channel = connection.CreateModel())
+            {
+                channel.QueueDeclare(queue: CandidateSkillQueueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
+
+                var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(eto));
+
+                var props = channel.CreateBasicProperties();
+                props.DeliveryMode = 2;
+
+                channel.BasicPublish(exchange: "", routingKey: CandidateSkillQueueName, basicProperties: props, body: body);
+            }
+
+            return Task.CompletedTask;
         }
     }
 }
