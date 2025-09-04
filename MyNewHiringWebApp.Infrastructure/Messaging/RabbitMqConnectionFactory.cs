@@ -1,37 +1,27 @@
-﻿using Azure.Identity;
-using Elasticsearch.Net;
-using RabbitMQ.Client;
+﻿// MyNewHiringWebApp.Infrastructure/Messaging/RabbitMqConnectionFactory.cs
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MyNewHiringWebApp.Infrastructure.Messaging
 {
     public class RabbitMqConnectionFactory
     {
-        private readonly string _hostName;
-        private readonly string _userName;
-        private readonly string _password;
+        private readonly RabbitMQ.Client.ConnectionFactory _factory;
 
-        public RabbitMqConnectionFactory(string hostName,string userName,string password)
+        public RabbitMqConnectionFactory(string hostName = "localhost", string userName = "guest", string password = "guest")
         {
-            _hostName = hostName;
-            _userName = userName;
-            _password = password;
-        }
-        
-            public IConnection CreateConnection()
-        {
-            var factory = new ConnectionFactory()
+            _factory = new RabbitMQ.Client.ConnectionFactory()
             {
-                HostName = _hotName,
-                UserName = _userName,
-                Password = _password
+                HostName = hostName,
+                UserName = userName,
+                Password = password
             };
-            return factory.CreateConnectionAsync();
         }
-        
+
+        // Dönüş tipi açık şekilde RabbitMQ.Client.IConnection olarak verildi
+        public RabbitMQ.Client.IConnection CreateConnection()
+        {
+            return _factory.CreateConnection();
+        }
     }
 }
+

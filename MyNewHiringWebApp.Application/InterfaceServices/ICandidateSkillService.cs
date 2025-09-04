@@ -11,6 +11,8 @@ namespace MyNewHiringWebApp.Application.InterfaceServices
         : IGenericService<CandidateSkill, CandidateSkillDto, CandidateSkillCreateDto, CandidateSkillUpdateDto>
     {
         Task<IEnumerable<CandidateSkillDto>> GetByCandidateIdAsync(int candidateId, CancellationToken ct = default);
+        Task<CandidateSkill?> GetByCandidateAndSkillAsync(int candidateId, int skillId, CancellationToken ct = default);
+
         Task<IEnumerable<CandidateSkillDto>> GetBySkillIdAsync(int skillId, CancellationToken ct = default);
     }
 }
