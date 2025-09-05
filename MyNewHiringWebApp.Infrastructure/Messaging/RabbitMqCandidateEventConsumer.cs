@@ -17,7 +17,7 @@ namespace MyNewHiringWebApp.Infrastructure.Messaging
         private readonly ILogger<RabbitMqCandidateEventConsumer> _logger;
         private IModel? _channel;
         private const string CandidateQueueName = "candidate.created.queue";
-        private readonly ushort _prefetchCount = 5; // aynı anda kaç mesaj işlenecek (ayarla)
+        private readonly ushort _prefetchCount = 5; 
 
         public RabbitMqCandidateEventConsumer(RabbitMqPersistentConnection persistentConnection, ILogger<RabbitMqCandidateEventConsumer> logger)
         {
@@ -28,10 +28,8 @@ namespace MyNewHiringWebApp.Infrastructure.Messaging
         public override Task StartAsync(CancellationToken cancellationToken)
         {
             _channel = _persistentConnection.CreateModel();
-            // ensure queue exists (durable true matches publisher)
             _channel.QueueDeclare(queue: CandidateQueueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
 
-            // QoS: prefetch
             _channel.BasicQos(0, _prefetchCount, false);
 
             _logger.LogInformation("RabbitMQ consumer initialized for queue {Queue}", CandidateQueueName);
@@ -50,23 +48,17 @@ namespace MyNewHiringWebApp.Infrastructure.Messaging
 
                 try
                 {
-                    // deserialize into expected ETO
                     var eto = JsonSerializer.Deserialize<CandidateCreatedEto>(message);
                     if (eto != null)
                     {
-                        // --- BURAYA işleme mantığını ekle ---
-                        // Örnek: loglama / db kaydı / dosyaya yazma / başka servise çağrı
                         _logger.LogInformation("Consumed candidate event: {Email}, Id: {Id}", eto.Email, eto.CandidateId);
-
-                        // simulate async work:
-                        await Task.Delay(50, stoppingToken);
+                        await Task.Delay(1, stoppingToken);
                     }
                     else
                     {
                         _logger.LogWarning("Received null or invalid CandidateCreatedEto payload.");
                     }
 
-                    // başarılı -> ack
                     _channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
                 }
                 catch (Exception ex)
@@ -89,7 +81,7 @@ namespace MyNewHiringWebApp.Infrastructure.Messaging
                 _channel?.Close();
                 _channel?.Dispose();
             }
-            catch { /* ignore */ }
+            catch {}
 
             base.Dispose();
         }
