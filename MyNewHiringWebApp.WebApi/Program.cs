@@ -85,6 +85,10 @@ try
     builder.Services.AddScoped<IDepartmentEventPublisher, RabbitMqDepartmentEventPublisher>();
     builder.Services.AddScoped<ICandidateSkillEventPublisher, RabbitMqCandidateSkillEventPublisher>();
 
+
+
+
+
     builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
         ConnectionMultiplexer.Connect(builder.Configuration["Redis:Configuration"]));
     builder.Services.AddSingleton<ICacheService, RedisCacheService>();
