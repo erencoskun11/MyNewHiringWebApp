@@ -1,5 +1,4 @@
-﻿// MyNewHiringWebApp.Infrastructure/Messaging/RabbitMqCandidateEventPublisher.cs
-using MyNewHiringWebApp.Application.ETOs.CandidateEtos;
+﻿using MyNewHiringWebApp.Application.ETOs.CandidateEtos;
 using MyNewHiringWebApp.Application.ETOs.CandidateSkillsEtos;
 using MyNewHiringWebApp.Application.Messaging.Interfaces;
 using RabbitMQ.Client;
@@ -22,7 +21,6 @@ namespace MyNewHiringWebApp.Infrastructure.Messaging
 
         public Task PublishCandidateCreatedAsync(CandidateCreatedEto eto)
         {
-            // using ile bağlantı ve kanal kapatılıyor
             using (var connection = _connectionFactory.CreateConnection())
             using (var channel = connection.CreateModel())
             {
@@ -31,7 +29,7 @@ namespace MyNewHiringWebApp.Infrastructure.Messaging
                 var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(eto));
 
                 var props = channel.CreateBasicProperties();
-                props.DeliveryMode = 2; // persistent
+                props.DeliveryMode = 2; 
 
                 channel.BasicPublish(exchange: "", routingKey: CandidateQueueName, basicProperties: props, body: body);
             }
