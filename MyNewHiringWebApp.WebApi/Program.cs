@@ -1,4 +1,3 @@
-// Program.cs
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -15,6 +14,7 @@ using MyNewHiringWebApp.Infrastructure.Caching;
 using StackExchange.Redis;
 using MyNewHiringWebApp.Application.Messaging.Interfaces;
 using MyNewHiringWebApp.Infrastructure.Messaging;
+using MyNewHiringWebApp.Application.ETOs.CandidateSkillsEtos;
 
 try
 {
@@ -29,17 +29,14 @@ try
             opts.JsonSerializerOptions.PropertyNamingPolicy = null;
         });
 
-    // DB Context
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
     {
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
             sql => sql.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null));
     });
 
-    // AutoMapper (tek çağrı)
     builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
-    // Generic repository ve servisler
     builder.Services.AddScoped(typeof(IRepository<>), typeof(BaseRepository<>));
 
     builder.Services.AddScoped<ICandidateService, CandidateService>();
@@ -78,24 +75,20 @@ try
     builder.Services.AddScoped<ITestSubmissionService, TestSubmissionService>();
     builder.Services.AddScoped<IRepository<TestSubmission>, BaseRepository<TestSubmission>>();
 
-
-    // RabbitMqConnectionFactory zaten ekli ise, persistent connection ekle
     builder.Services.AddSingleton<RabbitMqPersistentConnection>();
 
-    // Host edilen consumer
     builder.Services.AddHostedService<RabbitMqCandidateEventConsumer>();
+    builder.Services.AddHostedService<RabbitMqDepartmentEventConsumer>();
+    builder.Services.AddHostedService<RabbitMqCandidateSkillEventConsumer>();
 
-
-    // Candidate event publisher (RabbitMQ)
     builder.Services.AddScoped<ICandidateEventPublisher, RabbitMqCandidateEventPublisher>();
+    builder.Services.AddScoped<IDepartmentEventPublisher, RabbitMqDepartmentEventPublisher>();
+    builder.Services.AddScoped<ICandidateSkillEventPublisher, RabbitMqCandidateSkillEventPublisher>();
 
-    // Redis (NOT: bu kod Connect()'i uygulama startup'ında çalıştırır;
-    // eğer Redis erişilemiyorsa burada hata fırlayacaktır — gerekirse lazy versiyonunu sağlayayım)
     builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
         ConnectionMultiplexer.Connect(builder.Configuration["Redis:Configuration"]));
     builder.Services.AddSingleton<ICacheService, RedisCacheService>();
 
-    // Swagger
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(c =>
     {
@@ -108,7 +101,6 @@ try
         });
     });
 
-    // RabbitMQ ConnectionFactory singleton — konfigürasyondan oku
     builder.Services.AddSingleton(sp =>
     {
         var config = builder.Configuration.GetSection("RabbitMq");
@@ -119,7 +111,6 @@ try
         );
     });
 
-    // CORS
     builder.Services.AddCors(options =>
     {
         options.AddPolicy("AllowAll", builder =>
@@ -132,7 +123,6 @@ try
 
     var app = builder.Build();
 
-    // Developer middleware
     app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "v1"));
@@ -141,7 +131,6 @@ try
     app.UseAuthorization();
     app.MapControllers();
 
-    // DB migration - try/catch ile sarıldı
     using (var scope = app.Services.CreateScope())
     {
         try
@@ -161,10 +150,8 @@ try
 }
 catch (Exception ex)
 {
-    // Burada startup sırasında yakalanan kritik hatayı tam yazdırıyoruz
     Console.WriteLine("Startup exception caught in Program.cs:");
     Console.WriteLine(ex.ToString());
-
-    // Eğer konsolda çalıştırıyorsan hatayı görmek için rethrow et; IIS altında loglama yapınız.
     throw;
 }
+
