@@ -17,7 +17,6 @@ namespace MyNewHiringWebApp.Infrastructure.Messaging
             };
         }
 
-        // Dönüş tipi açık şekilde RabbitMQ.Client.IConnection olarak verildi
         public RabbitMQ.Client.IConnection CreateConnection()
         {
             return _factory.CreateConnection();
