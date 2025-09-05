@@ -1,5 +1,5 @@
 ﻿using MyNewHiringWebApp.Application.ETOs.DepartmentEtos;
-
+using MyNewHiringWebApp.Application.Messaging.Interfaces;
 using RabbitMQ.Client;
 using System.Text;
 using System.Text.Json;
@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MyNewHiringWebApp.Infrastructure.Messaging
 {
-    public class RabbitMqDepartmentEventPublisher
+    public class RabbitMqDepartmentEventPublisher : IDepartmentEventPublisher
     {
         private readonly RabbitMqConnectionFactory _connectionFactory;
         private const string DepartmentQueueName = "department.created.queue";
