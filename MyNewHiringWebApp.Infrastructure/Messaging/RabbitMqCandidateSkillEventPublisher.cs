@@ -1,24 +1,23 @@
-﻿using MyNewHiringWebApp.Application.ETOs.CandidateEtos;
+﻿using MyNewHiringWebApp.Application.ETOs.CandidateSkillsEtos;
+using MyNewHiringWebApp.Application.Messaging.Interfaces;
 using RabbitMQ.Client;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace MyNewHiringWebApp.Infrastructure.Messaging
 {
-    public class RabbitMqCandidateSkillEventPublisher
+    public class RabbitMqCandidateSkillEventPublisher : ICandidateSkillEventPublisher
     {
         private readonly RabbitMqConnectionFactory _connectionFactory;
         private const string CandidateSkillQueueName = "candidate.skill.created.queue";
 
         public RabbitMqCandidateSkillEventPublisher(RabbitMqConnectionFactory connectionFactory)
         {
-            _connectionFactory = connectionFactory;    
+            _connectionFactory = connectionFactory;
         }
-        public Task PublisherCandidateSkillCreatedAsync(CandidateCreatedEto eto)
+
+        public Task PublishCandidateSkillCreatedAsync(CandidateSkillCreatedEto eto)
         {
             using var connection = _connectionFactory.CreateConnection();
             using var channel = connection.CreateModel();
@@ -45,3 +44,4 @@ namespace MyNewHiringWebApp.Infrastructure.Messaging
         }
     }
 }
+
