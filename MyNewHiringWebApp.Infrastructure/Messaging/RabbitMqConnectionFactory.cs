@@ -1,5 +1,4 @@
-﻿// MyNewHiringWebApp.Infrastructure/Messaging/RabbitMqConnectionFactory.cs
-using System;
+﻿using System;
 
 namespace MyNewHiringWebApp.Infrastructure.Messaging
 {
