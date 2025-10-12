@@ -15,6 +15,7 @@ using StackExchange.Redis;
 using MyNewHiringWebApp.Application.Messaging.Interfaces;
 using MyNewHiringWebApp.Infrastructure.Messaging;
 using MyNewHiringWebApp.Application.ETOs.CandidateSkillsEtos;
+using Microsoft.Extensions.Caching.Memory; // ✅ eklendi
 
 try
 {
@@ -85,13 +86,15 @@ try
     builder.Services.AddScoped<IDepartmentEventPublisher, RabbitMqDepartmentEventPublisher>();
     builder.Services.AddScoped<ICandidateSkillEventPublisher, RabbitMqCandidateSkillEventPublisher>();
 
+    // ✅ IMemoryCache kaydı eklendi
+    builder.Services.AddMemoryCache();
 
-
-
-
+    // Redis bağlantısı
     builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
         ConnectionMultiplexer.Connect(builder.Configuration["Redis:Configuration"]));
-    builder.Services.AddSingleton<ICacheService, RedisCacheService>();
+
+    // Cache servisi
+    builder.Services.AddSingleton<ICacheService, CacheService>();
 
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(c =>
@@ -158,4 +161,3 @@ catch (Exception ex)
     Console.WriteLine(ex.ToString());
     throw;
 }
-
